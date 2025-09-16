@@ -26,6 +26,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
+          <h1>Hello Main navber</h1>
+         
           {children}
         </AuthProvider>
       </body>
