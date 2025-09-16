@@ -66,8 +66,8 @@ export default function UserRolesPage() {
  // ---------------- Fetch Data ----------------
   useEffect(() => {
     fetchRoles();
-   // fetchUsers();
-   // fetchPermissions();
+    fetchUsers();
+    fetchPermissions();
   }, []);
 
   const fetchRoles = async () => {
@@ -80,36 +80,36 @@ export default function UserRolesPage() {
     }
   };
 
-  // const fetchUsers = async () => {
-  //   try {
-  //     const res = await axios.get<User1[]>("/api/users");
-  //     setUsers(res.data);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get<User1[]>("/userroles/users");
+      setUsers(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  // const fetchPermissions = async () => {
-  //   try {
-  //     const res = await axios.get<Permission1[]>("/api/permissions");
-  //     setPermissions(res.data);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+  const fetchPermissions = async () => {
+    try {
+      const res = await api.get<Permission1[]>("/userroles/permissions");
+      setPermissions(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // ---------------- Handlers ----------------
   const handleSave = async (role:Role1) => {
     try {
       if (editingRole) {
-        const res = await axios.put<Role1>(`/api/roles/${editingRole.id}`, {
+        const res = await api.put<Role1>(`/userroles/roles/${editingRole.id}`, {
           ...editingRole,
           name: role,
         });
         setRoles(roles.map((r) => (r.id === res.data.id ? res.data : r)));
         setSelectedRole(res.data);
       } else {
-        const res = await axios.post<Role1>("/api/roles", { name: role });
+        const res = await api.post<Role1>("/userroles/roles", { name: role });
         setRoles([...roles, res.data]);
         setSelectedRole(res.data);
       }
@@ -143,11 +143,11 @@ export default function UserRolesPage() {
       // Save tempPermissions to backend
       await Promise.all(
         tempPermissions.map((p) =>
-          axios.put(`/api/permissions/${p.id}`, { ...p })
+          api.put(`/userroles/permissions/${p.id}`, { ...p })
         )
       );
       // Refresh permissions from backend
-      //fetchPermissions();
+      fetchPermissions();
     } catch (err) {
       console.error(err);
     } finally {
