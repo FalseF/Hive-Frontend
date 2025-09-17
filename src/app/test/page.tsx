@@ -1,5 +1,6 @@
 "use client"
-import { useState } from 'react';
+import { useState ,useEffect} from 'react';
+import { useApi } from "../utils/api";
 
 const LoginPage = () => {
   const [username, setUsername] = useState<string>('');
@@ -41,6 +42,34 @@ const LoginPage = () => {
     }
   };
 
+  const api = useApi();
+    const [projects, setProjects] = useState<Project[]>([]);
+  
+    
+      const fetchProjects = async () => {
+        try {
+          const res = await api.get<Project[]>("/auth/projects");
+          setProjects(res.data);
+        } catch (err) {
+          console.error("Error fetching projects:", err);
+        }
+      };
+  const fetchProjects1 = async () => {
+        try {
+          const res = await api.get<Project[]>("/auth/projects");
+          setProjects(res.data);
+        } catch (err) {
+          console.error("Error fetching projects:", err);
+        }
+      };
+    
+
+interface Project {
+  id: number;
+  name: string;
+}
+
+
   return (
     <div>
       <h1>Login</h1>
@@ -69,6 +98,10 @@ const LoginPage = () => {
       </form>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      <button onClick={fetchProjects}>click me for check refresh token</button>
+      <br/>
+      <button onClick={fetchProjects1}>click me again </button>
+
     </div>
   );
 };

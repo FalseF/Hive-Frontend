@@ -15,7 +15,8 @@ interface AuthContextType {
   user: User | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  refreshAccessToken: () => Promise<void>;
+  //refreshAccessToken: () => Promise<void>;
+   refreshAccessToken: () => Promise<string>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,16 +24,18 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   login: async () => {},
   logout: async () => {},
-  refreshAccessToken: async () => {},
+  //refreshAccessToken: async () => {},
+   refreshAccessToken: async () => "",
+  
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    refreshAccessToken();
-  }, [])
+  // useEffect(() => {
+  //   refreshAccessToken();
+  // }, [])
 
   const login = async (username: string, password: string) => {
     console.log("auth ")
@@ -47,20 +50,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     decodeAndSetUser(res.data.accessToken);
   };
 
-  const refreshAccessToken = async () => {
-    try {
-      const res = await axios.post<{ accessToken: string }>(
+  // const refreshAccessToken = async () => {
+  //   try {
+  //     const res = await axios.post<{ accessToken: string }>(
+  //       "https://localhost:7287/api/auth/refresh",
+  //       {},
+  //       { withCredentials: true }
+  //     );
+  //     setAccessToken(res.data.accessToken);
+  //     decodeAndSetUser(res.data.accessToken);
+  //   } catch {
+  //     setAccessToken(null);
+  //     setUser(null);
+  //   }
+  // };
+
+  const refreshAccessToken = async (): Promise<string> => {
+  try {
+    const res = await axios.post<{ accessToken: string }>(
         "https://localhost:7287/api/auth/refresh",
         {},
         { withCredentials: true }
       );
-      setAccessToken(res.data.accessToken);
-      decodeAndSetUser(res.data.accessToken);
-    } catch {
-      setAccessToken(null);
-      setUser(null);
-    }
-  };
+    const newToken = res.data.accessToken;
+
+    // update context or localStorage here
+    setAccessToken(newToken);
+     decodeAndSetUser(res.data.accessToken);
+
+    return newToken;
+  } catch (err) {
+    console.error("Failed to refresh token", err);
+     setAccessToken(null);
+     setUser(null);
+    throw err;
+  }
+};
 
   const logout = async () => {
     await axios.post("https://localhost:7287/api/auth/logout", {}, { withCredentials: true });
