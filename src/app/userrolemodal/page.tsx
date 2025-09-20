@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
-import { Role1 } from "../userroles/page";
+//import { Role1 } from "../userroles/page";
+import {Role1} from "../temp/page";
 
 
 interface ModalProps {

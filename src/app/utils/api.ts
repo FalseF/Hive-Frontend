@@ -74,6 +74,8 @@ export const useApi = (): AxiosInstance => {
       async (config) => {
         let token = accessToken;
 
+        config.headers = config.headers || {};
+
         // If no token or expired → refresh
         if (!token || isTokenExpired(token)) {
           if (!isRefreshing) {
