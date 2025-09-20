@@ -99,27 +99,37 @@ export default function UserRolesPage() {
   };
 
   // ---------------- Handlers ----------------
-  const handleSave = async (role:Role1) => {
-    try {
-      if (editingRole) {
-        const res = await api.put<Role1>(`/userroles/roles/${editingRole.id}`, {
-          ...editingRole,
-          name: role,
-        });
-        setRoles(roles.map((r) => (r.id === res.data.id ? res.data : r)));
-        setSelectedRole(res.data);
-      } else {
-        const res = await api.post<Role1>("/userroles/roles", { name: role });
-        setRoles([...roles, res.data]);
-        setSelectedRole(res.data);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setShowModal(false);
-      setEditingRole(null);
+const handleSave = async (role: Role1) => {
+  try {
+    if (editingRole) {
+      const res = await api.put<Role1>(`/userroles/roles/${editingRole.id}`, {
+        ...editingRole,//this the role id
+        ...role, // merge fields from form this copy all propertice from the role object 
+       updatedAt: new Date().toISOString(),// this override the role object updateAt value 
+       updatedBy: 1, // <- set from current logged in user
+      });
+
+      setRoles(roles.map((r) => (r.id === res.data.id ? res.data : r)));
+      setSelectedRole(res.data);
+    } else {
+      const res = await api.post<Role1>("/userroles/roles", {
+        ...role,
+        createdBy: 1, // current user id
+        updatedBy: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
+      setRoles([...roles, res.data]);
+      setSelectedRole(res.data);
     }
-  };
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setShowModal(false);
+    setEditingRole(null);
+  }
+};
 
   const handleDelete = async () => {
     if (!selectedRole) return;
@@ -128,7 +138,7 @@ export default function UserRolesPage() {
       setRoles(roles.filter((r) => r.id !== selectedRole.id));
       setSelectedRole(null);
     } catch (err) {
-      console.error(err);
+      //console.error(err);
     }
   };
 
@@ -162,7 +172,6 @@ export default function UserRolesPage() {
   };
 
 
-
   useEffect(() => {
     // Auto select first role
     if (roles.length > 0 && !selectedRole) {
@@ -176,77 +185,6 @@ export default function UserRolesPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ---------------- Handlers ----------------
-  // const handleSave = (role1: Role1) => {
-  //   if (editingRole) {
-  //     // update backend
-  //     fetch(`/api/roles/${editingRole.id}`, {
-  //       method: "PUT",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(role1),
-  //     })
-  //       .then(() => {
-  //         setRoles(roles.map((r) => (r.id === editingRole.id ? { ...role1 } : r)));
-  //         setSelectedRole({ ...role1 });
-  //       })
-  //       .catch((err) => console.error("Error updating role:", err));
-  //   } else {
-  //     // create backend
-  //     fetch("/api/roles", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(role1),
-  //     })
-  //       .then((res) => res.json())
-  //       .then((newRole) => {
-  //         setRoles([...roles, newRole]);
-  //         setSelectedRole(newRole);
-  //       })
-  //       .catch((err) => console.error("Error creating role:", err));
-  //   }
-
-  //   setShowModal(false);
-  //   setEditingRole(null);
-  // };
-
-  // const handleDelete = () => {
-  //   if (!selectedRole) return;
-
-  //   fetch(`/api/roles/${selectedRole.id}`, { method: "DELETE" })
-  //     .then(() => {
-  //       setRoles(roles.filter((r) => r.id !== selectedRole.id));
-  //       setSelectedRole(null);
-  //     })
-  //     .catch((err) => console.error("Error deleting role:", err));
-  // };
-
-  // const handleEditPermissions = () => {
-  //   const rolePerms = permissions.filter((p) => p.roleId === selectedRole?.id);
-  //   setTempPermissions(rolePerms);
-  //   setIsEditingPerm(true);
-  // };
-
-  // const handleSavePermissions = () => {
-  //   // send to backend
-  //   fetch(`/api/permissions/role/${selectedRole?.id}`, {
-  //     method: "PUT",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(tempPermissions),
-  //   })
-  //     .then(() => {
-  //       const updated = permissions.map(
-  //         (p) => tempPermissions.find((tp) => tp.id === p.id) || p
-  //       );
-  //       setPermissions(updated);
-  //       setIsEditingPerm(false);
-  //     })
-  //     .catch((err) => console.error("Error saving permissions:", err));
-  // };
-
-  // const handleCancelPermissions = () => {
-  //   setIsEditingPerm(false);
-  //   setTempPermissions([]);
-  // };
 
   const togglePermission = (id: number) => {
     setTempPermissions((prev) =>
@@ -260,8 +198,7 @@ export default function UserRolesPage() {
     : permissions.filter((p) => p.roleId === selectedRole?.id);
 
   // ---------------- UI ----------------
-  // ⬆️ keep same UI code (unchanged)
-  // ... rest of your component remains as-is
+ 
   return (
       <div className="p-6 pb-24 space-y-6 min-h-screen">
         {/* ---------------- Header ---------------- */}
@@ -438,4 +375,3 @@ export default function UserRolesPage() {
 }
 
 
-// ---------------- Role Modal ----------------
