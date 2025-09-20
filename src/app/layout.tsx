@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
+import { ConfirmModalProvider } from "@/app/context/GlobalConfirmModalContext";
 import { Toaster } from "react-hot-toast";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +28,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
+          <ConfirmModalProvider>
           <h1>Hello Main navber</h1>
          
           {children}
            <Toaster position="top-right" reverseOrder={false} />
+           </ConfirmModalProvider>
         </AuthProvider>
       </body>
     </html>

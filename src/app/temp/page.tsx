@@ -5,6 +5,7 @@ import { FiUser, FiArrowUp, FiX } from "react-icons/fi";
 import RoleModal from "../userrolemodal/page"
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useConfirmModal } from "@/app/context/GlobalConfirmModalContext";
 
 import { useApi } from "../utils/api";
 
@@ -52,6 +53,7 @@ export interface Permission1 {
 // ---------------- Page ----------------
 export default function UserRolesPage() {
    const api = useApi();
+    const { showConfirm } = useConfirmModal();
   // ---------------- State ----------------
   const [users, setUsers] = useState<User1[]>([]);
   const [permissions, setPermissions] = useState<Permission1[]>([]);
@@ -128,7 +130,7 @@ const handleSave = async (role: Role1) => {
 
       setRoles([...roles, res.data.data]);
       setSelectedRole(res.data.data);
-      toast.error("Session expired. Please log in again.");
+      //toast.error("Session expired. Please log in again.");
     }
   } catch (err) {
     console.error(err);
@@ -141,10 +143,20 @@ const handleSave = async (role: Role1) => {
   const handleDelete = async () => {
     if (!selectedRole) return;
     try {
+      showConfirm({
+      title: "Delete Role",
+      message: `Are you sure you want to delete "${"test"}"?`,
+      onConfirm: async () => {
         const res = await api.delete<ApiResponse<Role1>>(`/userroles/roles/${selectedRole.id}`);
-      setRoles(roles.filter((r) => r.id !== selectedRole.id));
-      console.log(res.data.message);
-      setSelectedRole(null);
+        setRoles(roles.filter((r) => r.id !== selectedRole.id));
+         console.log(res.data.message);
+        setSelectedRole(null);
+      },
+    });
+      //   const res = await api.delete<ApiResponse<Role1>>(`/userroles/roles/${selectedRole.id}`);
+      // setRoles(roles.filter((r) => r.id !== selectedRole.id));
+      // console.log(res.data.message);
+      // setSelectedRole(null);
     } catch (err) {
       //console.error(err);
     }
