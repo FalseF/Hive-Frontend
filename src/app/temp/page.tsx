@@ -4,10 +4,15 @@ import { useState, useEffect } from "react";
 import { FiUser, FiArrowUp, FiX } from "react-icons/fi";
 import RoleModal from "../userrolemodal/page"
 import axios from "axios";
+import toast from "react-hot-toast";
 
 import { useApi } from "../utils/api";
 
 // ---------------- Types ----------------
+export interface ApiResponse<T> {
+  message: string;
+  data: T;
+}
 export interface Role1 {
   id: number;
   systemId: number;
@@ -72,9 +77,9 @@ export default function UserRolesPage() {
 
   const fetchRoles = async () => {
     try {
-      const res = await api.get<Role1[]>("/userroles/roles");
-      setRoles(res.data);
-      if (res.data.length > 0) setSelectedRole(res.data[0]);
+      const res = await api.get<ApiResponse<Role1[]>>("/userroles/roles");
+      setRoles(res.data.data);
+      if (res.data.data.length > 0) setSelectedRole(res.data.data[0]);
     } catch (err) {
       console.error(err);
     }
@@ -82,19 +87,20 @@ export default function UserRolesPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get<User1[]>("/userroles/users");
-      setUsers(res.data);
+      const res = await api.get<ApiResponse<User1[]>>("/userroles/users");
+      setUsers(res.data.data);
+      //toast.success(res.data.message);
     } catch (err) {
-      console.error(err);
+     
     }
   };
 
   const fetchPermissions = async () => {
     try {
-      const res = await api.get<Permission1[]>("/userroles/permissions");
-      setPermissions(res.data);
+      const res = await api.get<ApiResponse<Permission1[]>>("/userroles/permissions");
+      setPermissions(res.data.data);
     } catch (err) {
-      console.error(err);
+     
     }
   };
 
@@ -102,17 +108,17 @@ export default function UserRolesPage() {
 const handleSave = async (role: Role1) => {
   try {
     if (editingRole) {
-      const res = await api.put<Role1>(`/userroles/roles/${editingRole.id}`, {
+      const res = await api.put<ApiResponse<Role1>>(`/userroles/roles/${editingRole.id}`, {
         ...editingRole,//this the role id
         ...role, // merge fields from form this copy all propertice from the role object 
        updatedAt: new Date().toISOString(),// this override the role object updateAt value 
        updatedBy: 1, // <- set from current logged in user
       });
 
-      setRoles(roles.map((r) => (r.id === res.data.id ? res.data : r)));
-      setSelectedRole(res.data);
+      setRoles(roles.map((r) => (r.id === res.data.data.id ? res.data.data : r)));
+      setSelectedRole(res.data.data);
     } else {
-      const res = await api.post<Role1>("/userroles/roles", {
+      const res = await api.post<ApiResponse<Role1>>("/userroles/roles", {
         ...role,
         createdBy: 1, // current user id
         updatedBy: 1,
@@ -120,8 +126,9 @@ const handleSave = async (role: Role1) => {
         updatedAt: new Date().toISOString(),
       });
 
-      setRoles([...roles, res.data]);
-      setSelectedRole(res.data);
+      setRoles([...roles, res.data.data]);
+      setSelectedRole(res.data.data);
+      toast.error("Session expired. Please log in again.");
     }
   } catch (err) {
     console.error(err);
@@ -134,8 +141,9 @@ const handleSave = async (role: Role1) => {
   const handleDelete = async () => {
     if (!selectedRole) return;
     try {
-      await axios.delete(`/api/roles/${selectedRole.id}`);
+        const res = await api.delete<ApiResponse<Role1>>(`/userroles/roles/${selectedRole.id}`);
       setRoles(roles.filter((r) => r.id !== selectedRole.id));
+      console.log(res.data.message);
       setSelectedRole(null);
     } catch (err) {
       //console.error(err);
@@ -243,7 +251,7 @@ const handleSave = async (role: Role1) => {
   
         {/* ---------------- Roles List ---------------- */}
         <div className="flex flex-wrap gap-2">
-          {roles.map((role) => (
+          {roles.map((role,index) => (
             <div
               key={role.id}
               onClick={() => setSelectedRole(role)}

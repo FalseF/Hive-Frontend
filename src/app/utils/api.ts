@@ -1,59 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import { useContext ,useMemo } from "react";
 import AuthContext from "../context/AuthContext";
-
-// const api: AxiosInstance = axios.create({
-//   baseURL: "https://localhost:7287/api",
-//   withCredentials: true,
-// });
-
-// export const useApi = () => {
-//   const { accessToken, refreshAccessToken } = useContext(AuthContext);
-
-//   console.log("above ",accessToken);
-
-//   // api.interceptors.request.use(async (config) => {
-//   //   if (!accessToken || isTokenExpired(accessToken)) {
-//   //     await refreshAccessToken();
-//   //   }
-//   //   if (config.headers) {
-//   //     console.log("inside ",accessToken);
-//   //     config.headers.Authorization = `Bearer ${accessToken}`;
-//   //   }
-//   //   console.log("outside ",accessToken);
-
-//   //   return config;
-//   // });
-//   api.interceptors.request.use(
-//   async (config) => {
-//     let token = accessToken;
-
-//     // If token is missing or expired, refresh it
-//     if (!token || isTokenExpired(token)) {
-//       console.log("call from validate token");
-//       token = await refreshAccessToken(); 
-//       console.log("new token",token);
-//     }
-
-//     // Attach the latest token to headers
-//     if (config.headers && token) {
-//       console.log("token with header",token);
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
-
-//   return api;
-// };
-
-// function isTokenExpired(token: string): boolean {
-//   const payload = JSON.parse(atob(token.split(".")[1]));
-//   console.log("payle",payload);
-//   return payload.exp * 1000 < Date.now();
-// }
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 
 // Global refresh lock
@@ -62,6 +11,7 @@ let refreshPromise: Promise<string> | null = null;
 
 export const useApi = (): AxiosInstance => {
   const { accessToken, refreshAccessToken } = useContext(AuthContext);
+  const router = useRouter();
 
   //useMemo ensures only one Axios instance per hook.
   const api = useMemo(() => { 
@@ -99,6 +49,38 @@ export const useApi = (): AxiosInstance => {
       },
       (error) => Promise.reject(error)
     );
+
+      // ---------- RESPONSE interceptor  ----------
+  instance.interceptors.response.use(
+    (response) => {
+      if (response.data?.message) {
+        toast.success(response.data.message);
+      }
+      return response;
+    },
+    (error) => {
+      const status = error.response?.status;
+      const message = error.response?.data?.message;
+
+      if (status === 400) {
+        toast.error(message || "Bad request");
+      } else if (status === 401) {
+        toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("user");
+        router.push("/login");
+      } else if (status === 403) {
+        toast.error("You don’t have permission.");
+      } else if (status === 404) {
+        toast.error("Resource not found.");
+      } else if (status === 500) {
+        toast.error("Server error. Try again later.");
+      } else {
+        toast.error(message || "Unexpected error occurred.");
+      }
+
+      return Promise.reject(error);
+    }
+  );
 
     return instance;
   }, [ ]);
