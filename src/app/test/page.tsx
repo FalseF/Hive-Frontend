@@ -1,6 +1,6 @@
 "use client"
 import { useState ,useEffect} from 'react';
-import { useApi } from "../utils/apitest";
+import { useApi } from "../utils/generictypeapi";
 
 const LoginPage = () => {
   const [username, setUsername] = useState<string>('');

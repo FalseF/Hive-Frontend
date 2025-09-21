@@ -7,14 +7,11 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useConfirmModal } from "@/app/context/GlobalConfirmModalContext";
 
-import { useApi } from "../utils/apitest";
+//import { useApi } from "../utils/api";
+import { useApi } from "../utils/generictypeapi";
 
 // ---------------- Types ----------------
-export interface ApiResponse<T> {
-  message: string;
-  data: T;
-  success: boolean;
-}
+
 export interface Role1 {
   id: number;
   systemId: number;
@@ -78,16 +75,6 @@ export default function UserRolesPage() {
     fetchPermissions();
   }, []);
 
-   const fetchAllRole = async () => {
-        try {
-          const res = await api.get<Role1[]>("/role/roles");
-          setRoles(res);
-         console.log(roles);
-        } catch (err) {
-          console.error("Error fetching projects:", err);
-        }
-      };
-
   const fetchRoles = async () => {
     try {
       const res = await api.get<Role1[]>("/role/roles");
@@ -121,14 +108,14 @@ export default function UserRolesPage() {
 const handleSave = async (role: Role1) => {
   try {
     if (editingRole) {
-      const res = await api.put<Role1>(`/role/roles/${editingRole.id}`, {
+      const res = await api.put<Role1>(`/role/role/${editingRole.id}`, {
         ...editingRole,//this the role id
         ...role, // merge fields from form this copy all propertice from the role object 
        updatedAt: new Date().toISOString(),// this override the role object updateAt value 
        updatedBy: 1, // <- set from current logged in user
       });
 
-      setRoles(roles.map((r) => (r.id === res.id ? res: r)));
+      setRoles(roles.map((r) => (r.id === res.id ? res : r)));
       setSelectedRole(res);
     } else {
       const res = await api.post<Role1>("/role/roles", {
@@ -420,9 +407,6 @@ const handleSave = async (role: Role1) => {
             <FiArrowUp className="w-5 h-5" />
           </button>
         )}
-          <br/>
-      <button onClick={fetchAllRole}>click me for given all rolse </button>
-
       </div>
     );
 }
