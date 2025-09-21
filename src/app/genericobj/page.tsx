@@ -7,12 +7,13 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useConfirmModal } from "@/app/context/GlobalConfirmModalContext";
 
-import { useApi } from "../utils/api";
+import { useApi } from "../utils/apitest";
 
 // ---------------- Types ----------------
 export interface ApiResponse<T> {
   message: string;
   data: T;
+  success: boolean;
 }
 export interface Role1 {
   id: number;
@@ -77,11 +78,21 @@ export default function UserRolesPage() {
     fetchPermissions();
   }, []);
 
+   const fetchAllRole = async () => {
+        try {
+          const res = await api.get<Role1[]>("/role/roles");
+          setRoles(res);
+         console.log(roles);
+        } catch (err) {
+          console.error("Error fetching projects:", err);
+        }
+      };
+
   const fetchRoles = async () => {
     try {
-      const res = await api.get<ApiResponse<Role1[]>>("/userroles/roles");
-      setRoles(res.data.data);
-      if (res.data.data.length > 0) setSelectedRole(res.data.data[0]);
+      const res = await api.get<Role1[]>("/role/roles");
+      setRoles(res);
+      if (res.length > 0) setSelectedRole(res[0]);
     } catch (err) {
      throw err;
     }
@@ -89,8 +100,8 @@ export default function UserRolesPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get<ApiResponse<User1[]>>("/userroles/users");
-      setUsers(res.data.data);
+      const res = await api.get<User1[]>("/role/users");
+      setUsers(res);
       //toast.success(res.data.message);
     } catch (err) {
      
@@ -99,8 +110,8 @@ export default function UserRolesPage() {
 
   const fetchPermissions = async () => {
     try {
-      const res = await api.get<ApiResponse<Permission1[]>>("/userroles/permissions");
-      setPermissions(res.data.data);
+      const res = await api.get<Permission1[]>("/role/permissions");
+      setPermissions(res);
     } catch (err) {
      
     }
@@ -110,17 +121,17 @@ export default function UserRolesPage() {
 const handleSave = async (role: Role1) => {
   try {
     if (editingRole) {
-      const res = await api.put<ApiResponse<Role1>>(`/userroles/roles/${editingRole.id}`, {
+      const res = await api.put<Role1>(`/role/roles/${editingRole.id}`, {
         ...editingRole,//this the role id
         ...role, // merge fields from form this copy all propertice from the role object 
        updatedAt: new Date().toISOString(),// this override the role object updateAt value 
        updatedBy: 1, // <- set from current logged in user
       });
 
-      setRoles(roles.map((r) => (r.id === res.data.data.id ? res.data.data : r)));
-      setSelectedRole(res.data.data);
+      setRoles(roles.map((r) => (r.id === res.id ? res: r)));
+      setSelectedRole(res);
     } else {
-      const res = await api.post<ApiResponse<Role1>>("/userroles/roles", {
+      const res = await api.post<Role1>("/role/roles", {
         ...role,
         createdBy: 1, // current user id
         updatedBy: 1,
@@ -128,8 +139,8 @@ const handleSave = async (role: Role1) => {
         updatedAt: new Date().toISOString(),
       });
 
-      setRoles([...roles, res.data.data]);
-      setSelectedRole(res.data.data);
+      setRoles([...roles, res]);
+      setSelectedRole(res);
       //toast.error("Session expired. Please log in again.");
     }
   } catch (err) {
@@ -149,10 +160,10 @@ const handleSave = async (role: Role1) => {
       message: `Are you sure you want to delete "${"test"}"?`,
       onConfirm: async () => {
         try{
-          const res = await api.delete<ApiResponse<Role1>>(`/userroles/roles/${selectedRole.id}`);
+          const res = await api.delete<Role1>(`/role/roles/${selectedRole.id}`);
           setRoles(roles.filter((r) => r.id !== selectedRole.id));
           toast.success("Delete role successfully!.");
-          console.log(res.data.message);
+          console.log(res);
           setSelectedRole(null);
         } catch(err){
             throw err;
@@ -181,7 +192,7 @@ const handleSave = async (role: Role1) => {
       // Save tempPermissions to backend
       await Promise.all(
         tempPermissions.map((p) =>
-          api.put(`/userroles/permissions/${p.id}`, { ...p })
+          api.put(`/role/permissions/${p.id}`, { ...p })
         )
       );
       // Refresh permissions from backend
@@ -409,6 +420,9 @@ const handleSave = async (role: Role1) => {
             <FiArrowUp className="w-5 h-5" />
           </button>
         )}
+          <br/>
+      <button onClick={fetchAllRole}>click me for given all rolse </button>
+
       </div>
     );
 }

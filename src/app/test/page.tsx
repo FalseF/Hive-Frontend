@@ -1,12 +1,15 @@
 "use client"
 import { useState ,useEffect} from 'react';
-import { useApi } from "../utils/api";
+import { useApi } from "../utils/apitest";
 
 const LoginPage = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+   const [role, setRole] = useState<Role1 | null>(null);
+   const [roles, setRoles] = useState<Role1[]>([]);
+const api = useApi();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,32 +45,64 @@ const LoginPage = () => {
     }
   };
 
-  const api = useApi();
+
     const [projects, setProjects] = useState<Project[]>([]);
   
     
       const fetchProjects = async () => {
         try {
           const res = await api.get<Project[]>("/auth/projects");
-          setProjects(res.data);
+          setProjects(res);
         } catch (err) {
           console.error("Error fetching projects:", err);
         }
       };
-  const fetchProjects1 = async () => {
+  const fetchRole = async () => {
         try {
-          const res = await api.get<Project[]>("/auth/projects");
-          setProjects(res.data);
+          const newRole: Role1 = {
+      id: 0, // backend will replace
+      systemId: 1,
+      name: "Admin",
+      projectId: 1,
+      createdBy: 1,
+      updatedBy: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+          const res = await api.post<Role1>("/role/roles",newRole);
+          setRole(res);
+          console.log(role);
+        } catch (err) {
+          console.error("Error fetching projects:", err);
+        }
+};
+ const fetchAllRole = async () => {
+        try {
+          const res = await api.get<Role1[]>("/role/roles");
+          setRoles(res);
+         console.log(roles);
         } catch (err) {
           console.error("Error fetching projects:", err);
         }
       };
+      
     
 
 interface Project {
   id: number;
   name: string;
 }
+ interface Role1 {
+  id: number;
+  systemId: number;
+  name: string;
+  projectId: number;
+  createdBy: number;
+  updatedBy: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
 
   return (
@@ -100,7 +135,11 @@ interface Project {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <button onClick={fetchProjects}>click me for check refresh token</button>
       <br/>
-      <button onClick={fetchProjects1}>click me again </button>
+      <button onClick={fetchProjects}>click me again </button>
+      <br/>
+      <button onClick={fetchRole}>click me for role </button>
+        <br/>
+      <button onClick={fetchAllRole}>click me for given all rolse </button>
 
     </div>
   );
