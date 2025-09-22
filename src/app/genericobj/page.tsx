@@ -78,8 +78,14 @@ export default function UserRolesPage() {
   const fetchRoles = async () => {
     try {
       const res = await api.get<Role1[]>("/role/roles");
-      setRoles(res);
-      if (res.length > 0) setSelectedRole(res[0]);
+      
+      console.log(res);
+      console.log(res.data);
+      console.log(res.message);
+      console.log(res.success);
+
+      setRoles(res.data);
+      if (res.data.length > 0) setSelectedRole(res.data[0]);
     } catch (err) {
      throw err;
     }
@@ -88,7 +94,7 @@ export default function UserRolesPage() {
   const fetchUsers = async () => {
     try {
       const res = await api.get<User1[]>("/role/users");
-      setUsers(res);
+      setUsers(res.data);
       //toast.success(res.data.message);
     } catch (err) {
      
@@ -98,7 +104,7 @@ export default function UserRolesPage() {
   const fetchPermissions = async () => {
     try {
       const res = await api.get<Permission1[]>("/role/permissions");
-      setPermissions(res);
+      setPermissions(res.data);
     } catch (err) {
      
     }
@@ -115,8 +121,8 @@ const handleSave = async (role: Role1) => {
        updatedBy: 1, // <- set from current logged in user
       });
 
-      setRoles(roles.map((r) => (r.id === res.id ? res : r)));
-      setSelectedRole(res);
+      setRoles(roles.map((r) => (r.id === res.data.id ? res.data : r)));
+      setSelectedRole(res.data);
     } else {
       const res = await api.post<Role1>("/role/roles", {
         ...role,
@@ -126,8 +132,8 @@ const handleSave = async (role: Role1) => {
         updatedAt: new Date().toISOString(),
       });
 
-      setRoles([...roles, res]);
-      setSelectedRole(res);
+      setRoles([...roles, res.data]);
+      setSelectedRole(res.data);
       //toast.error("Session expired. Please log in again.");
     }
   } catch (err) {

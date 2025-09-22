@@ -56,7 +56,7 @@ export const useApi = (): AxiosInstance => {
       if (response.data?.message) {
         toast.success(response.data.message);
       }
-      return response;
+      return response.data;
     },
     (error) => {
       const status = error.response?.status;
@@ -66,8 +66,8 @@ export const useApi = (): AxiosInstance => {
         toast.error(message || "Bad request");
       } else if (status === 401) {
         toast.error("Session expired. Please log in again.");
-        localStorage.removeItem("user");
-        router.push("/login");
+        // localStorage.removeItem("user");
+        // router.push("/login");
       } else if (status === 403) {
         toast.error("You don’t have permission.");
       } else if (status === 404) {

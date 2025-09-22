@@ -79,9 +79,9 @@ export default function UserRolesPage() {
 
   const fetchRoles = async () => {
     try {
-      const res = await api.get<ApiResponse<Role1[]>>("/userroles/roles");
-      setRoles(res.data.data);
-      if (res.data.data.length > 0) setSelectedRole(res.data.data[0]);
+      const res = await api.get("/userroles/roles");
+      setRoles(res.data);
+      if (res.data.length > 0) setSelectedRole(res.data[0]);
     } catch (err) {
      throw err;
     }
@@ -89,8 +89,8 @@ export default function UserRolesPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get<ApiResponse<User1[]>>("/userroles/users");
-      setUsers(res.data.data);
+      const res = await api.get("/userroles/users");
+      setUsers(res.data);
       //toast.success(res.data.message);
     } catch (err) {
      
@@ -99,8 +99,8 @@ export default function UserRolesPage() {
 
   const fetchPermissions = async () => {
     try {
-      const res = await api.get<ApiResponse<Permission1[]>>("/userroles/permissions");
-      setPermissions(res.data.data);
+      const res = await api.get("/userroles/permissions");
+      setPermissions(res.data);
     } catch (err) {
      
     }
@@ -110,17 +110,17 @@ export default function UserRolesPage() {
 const handleSave = async (role: Role1) => {
   try {
     if (editingRole) {
-      const res = await api.put<ApiResponse<Role1>>(`/userroles/roles/${editingRole.id}`, {
+      const res = await api.put(`/userroles/roles/${editingRole.id}`, {
         ...editingRole,//this the role id
         ...role, // merge fields from form this copy all propertice from the role object 
        updatedAt: new Date().toISOString(),// this override the role object updateAt value 
        updatedBy: 1, // <- set from current logged in user
       });
 
-      setRoles(roles.map((r) => (r.id === res.data.data.id ? res.data.data : r)));
-      setSelectedRole(res.data.data);
+      setRoles(roles.map((r) => (r.id === res.data.id ? res.data : r)));
+      setSelectedRole(res.data);
     } else {
-      const res = await api.post<ApiResponse<Role1>>("/userroles/roles", {
+      const res = await api.post("/userroles/roles", {
         ...role,
         createdBy: 1, // current user id
         updatedBy: 1,
@@ -128,12 +128,12 @@ const handleSave = async (role: Role1) => {
         updatedAt: new Date().toISOString(),
       });
 
-      setRoles([...roles, res.data.data]);
-      setSelectedRole(res.data.data);
+      setRoles([...roles, res.data]);
+      setSelectedRole(res.data);
       //toast.error("Session expired. Please log in again.");
     }
   } catch (err) {
-    //console.error(err);
+   // console.log(err);
     throw err;
   } finally {
     setShowModal(false);
@@ -149,7 +149,7 @@ const handleSave = async (role: Role1) => {
       message: `Are you sure you want to delete "${"test"}"?`,
       onConfirm: async () => {
         try{
-          const res = await api.delete<ApiResponse<Role1>>(`/userroles/roles/${selectedRole.id}`);
+          const res = await api.delete(`/userroles/roles/${selectedRole.id}`);
           setRoles(roles.filter((r) => r.id !== selectedRole.id));
           toast.success("Delete role successfully!.");
           console.log(res.data.message);
