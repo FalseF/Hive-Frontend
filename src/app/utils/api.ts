@@ -50,13 +50,32 @@ export const useApi = (): AxiosInstance => {
       (error) => Promise.reject(error)
     );
 
+    //below are used if you want to access message and status direcly 
+
+//     instance.interceptors.response.use((response) => {
+//   const { message, data, success } = response.data;
+//   //console.log(message,data,success);
+
+//   // Optional toast
+//   if (message) toast.success(message);
+
+//   // Return flattened structure
+//   return {
+//     message,
+//     data,     // roles array
+//     success
+//   } as any; ;
+// });
+
       // ---------- RESPONSE interceptor  ----------
   instance.interceptors.response.use(
     (response) => {
-      if (response.data?.message) {
+      if (response.data.success && response.data?.message) {
         toast.success(response.data.message);
       }
-      return response.data;
+      return response// if  we return direct response the acceess this like res.data.data, res.data.message
+       //return response.data;// now its access res.data (the backend sending data ) but here cant access message because interceptor 
+                            //assign the value into their data  sothat cant dierct access data.message
     },
     (error) => {
       const status = error.response?.status;

@@ -79,9 +79,16 @@ export default function UserRolesPage() {
 
   const fetchRoles = async () => {
     try {
-      const res = await api.get("/userroles/roles");
-      setRoles(res.data);
-      if (res.data.length > 0) setSelectedRole(res.data[0]);
+      // const res = await api.get("/userroles/roles") as any;
+      // console.log(res);
+      // console.log(res.data);
+      // console.log(res.message);
+      // console.log(res.success);
+      const res = await api.get("/userroles/roles")
+      console.log(res.data.message);
+      console.log(res.data.success);
+      setRoles(res.data.data);
+      if (res.data.data.length > 0) setSelectedRole(res.data.data[0]);
     } catch (err) {
      throw err;
     }
@@ -90,17 +97,22 @@ export default function UserRolesPage() {
   const fetchUsers = async () => {
     try {
       const res = await api.get("/userroles/users");
-      setUsers(res.data);
+      console.log("asche inside ");
+      //if we retrun response.data then use the below section 
+      // console.log(res.data);
+      // console.log(((res)as any ).message);
+      // console.log(((res)as any ).success);
+      setUsers(res.data.data);
       //toast.success(res.data.message);
     } catch (err) {
-     
+       console.log("asche outside ");
     }
   };
 
   const fetchPermissions = async () => {
     try {
       const res = await api.get("/userroles/permissions");
-      setPermissions(res.data);
+      setPermissions(res.data.data);
     } catch (err) {
      
     }
@@ -117,8 +129,8 @@ const handleSave = async (role: Role1) => {
        updatedBy: 1, // <- set from current logged in user
       });
 
-      setRoles(roles.map((r) => (r.id === res.data.id ? res.data : r)));
-      setSelectedRole(res.data);
+      setRoles(roles.map((r) => (r.id === res.data.data.id ? res.data.data : r)));
+      setSelectedRole(res.data.data);
     } else {
       const res = await api.post("/userroles/roles", {
         ...role,
@@ -128,13 +140,13 @@ const handleSave = async (role: Role1) => {
         updatedAt: new Date().toISOString(),
       });
 
-      setRoles([...roles, res.data]);
-      setSelectedRole(res.data);
+      setRoles([...roles, res.data.data]);
+      setSelectedRole(res.data.data);
       //toast.error("Session expired. Please log in again.");
     }
   } catch (err) {
    // console.log(err);
-    throw err;
+    console.log("out side of the bad request");
   } finally {
     setShowModal(false);
     setEditingRole(null);
