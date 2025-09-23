@@ -102,7 +102,7 @@ export const useApi = (): AxiosInstance => {
   );
 
     return instance;
-  }, [ ]);
+  }, [accessToken, refreshAccessToken ]);
    //}, [accessToken, refreshAccessToken]); call this when the token change 
 
   return api;

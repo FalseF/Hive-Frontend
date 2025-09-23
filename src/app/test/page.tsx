@@ -52,7 +52,7 @@ const api = useApi();
       const fetchProjects = async () => {
         try {
           const res = await api.get<Project[]>("/auth/projects");
-          setProjects(res);
+          setProjects(res.data);
         } catch (err) {
           console.error("Error fetching projects:", err);
         }
@@ -70,7 +70,7 @@ const api = useApi();
       updatedAt: new Date().toISOString(),
     };
           const res = await api.post<Role1>("/role/roles",newRole);
-          setRole(res);
+          setRole(res.data);
           console.log(role);
         } catch (err) {
           console.error("Error fetching projects:", err);
@@ -79,7 +79,7 @@ const api = useApi();
  const fetchAllRole = async () => {
         try {
           const res = await api.get<Role1[]>("/role/roles");
-          setRoles(res);
+          setRoles(res.data);
          console.log(roles);
         } catch (err) {
           console.error("Error fetching projects:", err);
