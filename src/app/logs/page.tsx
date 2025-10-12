@@ -6,7 +6,6 @@ import LogTable from "./components/logTable";
 import LogFilters from "./components/logFilters";
 import LogDetailsModal from "./components/logDetailsModal";
 import { FiArrowDown, FiArrowUp } from "react-icons/fi";
-import axios from "axios";
 
 export interface LogModel {
   id: number;
@@ -18,6 +17,21 @@ export interface LogModel {
   pageUrl?: string;
   referrerUrl?: string;
   createdOnUtc: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface LogSearchDto {
+  from?: string;
+  to?: string;
+  level?: string;
+  message?: string;
+  pageIndex: number;
+  pageSize: number;
 }
 
 // ---------------- Page Component ----------------
@@ -48,30 +62,27 @@ export default function LogsPage() {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const params: Record<string, any> = {
+
+      // Send body as LogSearchDto
+      const body: LogSearchDto = {
         pageIndex,
         pageSize,
+        from: filters.from || undefined,
+        to: filters.to || undefined,
+        level: filters.level || undefined,
+        message: filters.message || undefined,
       };
-      if (filters.message) params.message = filters.message;
-      if (filters.level) params.level = filters.level;
-      if (filters.from) params.from = filters.from;
-      if (filters.to) params.to = filters.to;
 
-      const res = await axios.get<{
-        totalCount: number;
-        items: LogModel[];
-      }>("https://localhost:7287/api/log/search", { params });
+      const res = await api.post<ApiResponse<{ totalCount: number; items: LogModel[] }>>(
+        "/log/search",
+        body
+      );
 
-      console.log(res);
-      console.log(res.data);
-
-    //  console.log(res);
-        setLogs(res.data.items);
-        console.log(res.data.items);
-        setTotalCount(res.data.totalCount);
-
-      if (res?.data) {
-       
+      if (res.data.success && res.data.data) {
+        setLogs(res.data.data.items);
+        setTotalCount(res.data.data.totalCount);
+      } else {
+        console.error("Error fetching logs:", res.data.message);
       }
     } catch (err: any) {
       console.error("Error fetching logs:", err.message || err);
@@ -80,6 +91,7 @@ export default function LogsPage() {
     }
   };
 
+  // Refetch when pageIndex or pageSize changes
   useEffect(() => {
     fetchLogs();
   }, [pageIndex, pageSize]);
@@ -90,7 +102,8 @@ export default function LogsPage() {
     if (!confirm(`Delete ${selectedIds.length} selected logs?`)) return;
 
     try {
-      await api.delete("/log/delete-selected", { data: { ids: selectedIds } });
+      const res = await api.post<ApiResponse<string>>("/log/delete-selected", selectedIds);
+      if (res.data.success) alert(res.data.message);
       fetchLogs();
       setSelectedIds([]);
     } catch (err: any) {
@@ -101,7 +114,8 @@ export default function LogsPage() {
   const deleteAll = async () => {
     if (!confirm("Delete all logs?")) return;
     try {
-      await api.delete("/log/delete-all");
+      const res = await api.delete<ApiResponse<string>>("/log/clear");
+      if (res.data.success) alert(res.data.message);
       fetchLogs();
       setSelectedIds([]);
     } catch (err: any) {
@@ -175,7 +189,6 @@ export default function LogsPage() {
 
       {/* Pagination + Footer */}
       <div className="flex justify-between items-center mt-3">
-        {/* Left: Prev/Next, items per page, record count */}
         <div className="flex items-center gap-3">
           <button
             disabled={pageIndex === 0}
