@@ -1,6 +1,7 @@
 "use client"
 import { useState ,useEffect} from 'react';
 import { useApi } from "../utils/generictypeapi";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const [username, setUsername] = useState<string>('');
@@ -9,6 +10,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
    const [role, setRole] = useState<Role1 | null>(null);
    const [roles, setRoles] = useState<Role1[]>([]);
+     const router = useRouter();
 const api = useApi();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -20,7 +22,7 @@ const api = useApi();
     const loginData = { username, password };
 
     try {
-      const response = await fetch('http://localhost:5205/api/auth/login', {
+      const response = await fetch('https://localhost:7287/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,6 +83,7 @@ const api = useApi();
           const res = await api.get<Role1[]>("/role/roles");
           setRoles(res.data);
          console.log(roles);
+          router.push("/temp");
         } catch (err) {
           console.error("Error fetching projects:", err);
         }

@@ -46,8 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         headers: { "Content-Type": "application/json"}
       }
     );
-    setAccessToken(res.data.accessToken);
-    decodeAndSetUser(res.data.accessToken);
+
   };
 
   // const refreshAccessToken = async () => {
@@ -67,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshAccessToken = async (): Promise<string> => {
   try {
+     console.log("api called for:");
     const res = await axios.post<{ accessToken: string }>(
         "https://localhost:7287/api/auth/refresh",
         {},
@@ -75,8 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const newToken = res.data.accessToken;
 
     // update context or localStorage here
-    setAccessToken(newToken);
-     decodeAndSetUser(res.data.accessToken);
+   
 
     return newToken;
   } catch (err) {
