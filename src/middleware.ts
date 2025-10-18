@@ -29,7 +29,7 @@ export async function middleware(req: NextRequest) {
     try {
 
         let isAuthenticated = true;
-        if(accessToken == null){
+        if(refreshToken == null){
                 console.log("called from middle ware token checked!");
                 const res = await fetch(`${API_BASE_URL}/auth/access-token`, {
                 method: "POST",
