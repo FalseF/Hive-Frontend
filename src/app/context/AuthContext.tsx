@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   try {
      console.log("api called for:");
     const res = await axios.post<{ accessToken: string }>(
-        "https://localhost:7287/api/auth/refresh",
+        "https://localhost:7287/api/auth/access-token",
         {},
         { withCredentials: true }
       );

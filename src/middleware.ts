@@ -9,31 +9,48 @@ export async function middleware(req: NextRequest) {
 
     const cookieHeader = req.headers.get("cookie") || "";
     const isLoginPage = url.pathname === "/login";
-   //console.log("Cookies sent from browser:", cookieHeader);
 
-    // Only disable TLS verification in development
+     const getCookie = (cookieHeader: string, cookieName: string): string | null => {
+        const match = cookieHeader
+            .split(';')
+            .map(cookie => cookie.trim())
+            .find(cookie => cookie.startsWith(`${cookieName}=`));
+        return match ? match.split('=')[1] : null;
+    };
+
+    const accessToken = getCookie(cookieHeader, "accessToken");
+    const refreshToken = getCookie(cookieHeader, "refreshToken");
+  
+   
     if (process.env.NODE_ENV === "development") {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     }
 
     try {
-        const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "cookie": cookieHeader,
-            },
-        });
 
-        const data = await res.json();
-        // console.log("Response from backend:", data);
-        // console.log("Backend response status:", res.status);
+        let isAuthenticated = true;
+        if(accessToken == null){
+                console.log("called from middle ware token checked!");
+                const res = await fetch(`${API_BASE_URL}/auth/access-token`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "cookie": cookieHeader,
+                },
+            });
+           if (res.status === 401 || res.status === 403 || res.status === 400) {
+                isAuthenticated = false;
+            }
+            const data = await res.json();
+            // console.log("Response from backend:", data);
+            // console.log("Backend response status:", res.status);
+        }
        
-        if (isLoginPage && res.status === 200) {
+        if (isLoginPage && isAuthenticated) {
             return NextResponse.redirect(new URL("/", req.url));
         }
       
-        if ((!isLoginPage) && (res.status === 401 || res.status === 403 || res.status === 400)) {
+        if ((!isLoginPage) && !isAuthenticated) {
             return NextResponse.redirect(new URL("/login", req.url));
         }
     } catch (err) {
