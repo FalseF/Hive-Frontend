@@ -5,7 +5,7 @@ const API_BASE_URL = "https://localhost:7287/api";
 
 export async function middleware(req: NextRequest) {
     const url = req.nextUrl.clone();
-    console.log("Middleware called for:", url.pathname);
+   
 
     const cookieHeader = req.headers.get("cookie") || "";
     const isLoginPage = url.pathname === "/login";
@@ -31,7 +31,7 @@ export async function middleware(req: NextRequest) {
         let isAuthenticated = true;
         if(refreshToken == null){
                 console.log("called from middle ware token checked!");
-                const res = await fetch(`${API_BASE_URL}/auth/access-token`, {
+                const res = await fetch(`${API_BASE_URL}/auth/authenticate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -45,6 +45,8 @@ export async function middleware(req: NextRequest) {
             // console.log("Response from backend:", data);
             // console.log("Backend response status:", res.status);
         }
+
+        console.log(isLoginPage,isAuthenticated);
        
         if (isLoginPage && isAuthenticated) {
             return NextResponse.redirect(new URL("/", req.url));
@@ -54,7 +56,7 @@ export async function middleware(req: NextRequest) {
             return NextResponse.redirect(new URL("/login", req.url));
         }
     } catch (err) {
-        console.error("Middleware backend call failed:", err);
+        console.error("Please Login again your access token has been expired.", err);
         if (!isLoginPage) return NextResponse.redirect(new URL("/login", req.url));
     }
 
@@ -62,6 +64,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!login|_next|api|static|favicon.ico).*)"],
+    matcher: ["/((?!_next|api|static|favicon.ico).*)"],
     runtime: "nodejs",
 };

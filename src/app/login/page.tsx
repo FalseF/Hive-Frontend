@@ -15,7 +15,7 @@ export default function LoginPage() {
     try {
       await login(username, password);
       //router.push("/dashboard");
-      router.push("/test");
+      router.push("/");
     } catch {
       alert("Invalid credentials");
     }

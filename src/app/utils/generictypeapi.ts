@@ -21,7 +21,7 @@ export const useApi = () => {
   const api = useMemo(() => {
     const instance: AxiosInstance = axios.create({
          baseURL: "https://localhost:7287/api",
-      withCredentials: true,
+        withCredentials: true,
     });
 
     // ---------- REQUEST interceptor ----------

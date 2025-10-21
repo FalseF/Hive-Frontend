@@ -29,9 +29,9 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ConfirmModalProvider>
-          <h1>Hello Main navber</h1>
          
           {children}
+          
            <Toaster position="top-right" reverseOrder={false} />
            </ConfirmModalProvider>
         </AuthProvider>
