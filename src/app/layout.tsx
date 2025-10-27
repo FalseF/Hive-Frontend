@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ConfirmModalProvider } from "@/app/context/GlobalConfirmModalContext";
 import { Toaster } from "react-hot-toast";
+import  RouteLoader  from "@/app/components/RouteLoader";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,7 +30,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ConfirmModalProvider>
-         
+          <RouteLoader/>
           {children}
           
            <Toaster position="top-right" reverseOrder={false} />
