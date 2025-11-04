@@ -26,8 +26,7 @@ export interface ApiResponse<T> {
 }
 
 export interface LogSearchDto {
-  from?: string;
-  to?: string;
+
   level?: string;
   message?: string;
   pageIndex: number;
@@ -53,7 +52,7 @@ export default function LogsPage() {
   // Filters
   const [filters, setFilters] = useState({
     from: "",
-    to: "",
+    to: " ",
     level: "",
     message: "",
   });
@@ -67,14 +66,13 @@ export default function LogsPage() {
       const body: LogSearchDto = {
         pageIndex,
         pageSize,
-        from: filters.from || undefined,
-        to: filters.to || undefined,
-        level: filters.level || undefined,
-        message: filters.message || undefined,
+   
+        level: filters.level || "",
+        message: filters.message || "",
       };
 
       const res = await api.post<ApiResponse<{ totalCount: number; items: LogModel[] }>>(
-        "/log/search",
+        "/log/search2",
         body
       );
 
@@ -124,13 +122,13 @@ export default function LogsPage() {
   };
 
   const handleSearch = () => {
-    setPageIndex(0);
+    setPageIndex(3);
     fetchLogs();
   };
 
   const handleReset = () => {
     setFilters({ from: "", to: "", level: "", message: "" });
-    setPageIndex(0);
+    setPageIndex(3);
     fetchLogs();
   };
 
