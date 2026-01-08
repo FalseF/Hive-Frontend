@@ -97,6 +97,8 @@ export const useApi = () => {
         wrap<T>(instance.put<ApiResponse<T>>(url, data, config)),
       delete: <T>(url: string, config?: AxiosRequestConfig) =>
         wrap<T>(instance.delete<ApiResponse<T>>(url, config)),
+      getRaw: (url: string, config?: AxiosRequestConfig) =>
+        instance.get(url, config),
     };
   }, []);
 
