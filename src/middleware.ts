@@ -64,6 +64,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!_next|api|static|favicon.ico).*)"],
+    matcher: ["/((?!graph-page|_next|api|static|favicon.ico).*)"],
     runtime: "nodejs",
 };
