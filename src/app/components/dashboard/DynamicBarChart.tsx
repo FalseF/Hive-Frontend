@@ -85,11 +85,26 @@ export function DynamicBarChart<T extends Record<string, any>>({
 
       <div className="relative" style={{ paddingLeft: "40px" }}>
         {/* Y Axis */}
-        <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-sm text-gray-600">
+        <div className="absolute left-0 top-0 h-full w-[40px] text-sm">
+        {yAxisLabels.map((value, i) => {
+            const y = (height / tickCount) * i;
+
+            return (
+            <div
+                key={i}
+                className="absolute right-2 transform -translate-y-1/2"
+                style={{ top: `${y}px` }}
+            >
+                {value}
+            </div>
+            );
+        })}
+        </div>
+        {/* <div className="absolute left-0 top-0 bottom-12 flex flex-col justify-between text-sm text-gray-600">
           {yAxisLabels.map((value,index) => (
             <div key={index}>{value}</div>
           ))}
-        </div>
+        </div> */}
 
         {/* Chart */}
         <div className="relative" style={{ height }}>
