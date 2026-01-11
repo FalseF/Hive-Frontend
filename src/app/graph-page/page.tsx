@@ -3,6 +3,7 @@
 
 import Chart from 'react-apexcharts';
 import { DynamicBarChart } from '../components/dashboard/DynamicBarChart';
+import { DynamicBarChartWithNegative } from '../components/dashboard/DynamicBarChartWithNegative';
 
 const salesData = [
   { name: 'Zack', revenue: 1200, grossMargin: 400 },
@@ -18,6 +19,13 @@ const operationsData = [
   { name: 'Mike', loadCount: 55 },
   { name: 'Alex', loadCount: 28 },
   { name: 'Ryan', loadCount: 48 },
+];
+const nevativeData= [
+  { name: 'Zack', loadCount: -42 },
+  { name: 'John', loadCount: -35 },
+  { name: 'Mike', loadCount: -55 },
+  { name: 'Alex', loadCount: -28 },
+  { name: 'Ryan', loadCount: -48 },
 ];
 const oficesData = [
   { name: 'Zack', revenue: 1200, grossMargin: 400 },
@@ -194,6 +202,15 @@ export default function DashboardPage() {
               { key: "grossMargin", label: "Gross Margin ($)", color: "#d1d5db" },
             ]}
           />
+          {/* negetive graph not work correctly work in later */}
+          {/* <DynamicBarChartWithNegative
+            title="Office  Leaderboard"
+            data={nevativeData}
+            nameKey="name"
+            bars={[
+              { key: "loadCount", label: "Load ct.", color: "#0891b2" },
+            ]}
+          /> */}
         </div>
 
       </div>
